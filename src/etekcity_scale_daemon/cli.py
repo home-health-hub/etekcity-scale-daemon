@@ -341,8 +341,9 @@ async def run_daemon(
         config: Loaded daemon configuration.
         once: If True, exit after recording a single measurement (or after
             ``once_timeout`` seconds without one) instead of running until a
-            stop signal -- for cron-driven polling instead of a long-running
-            service.
+            stop signal -- for an on-demand capture run by hand right
+            before (or while) stepping on the scale, instead of a
+            long-running service.
         once_timeout: Seconds to wait for one measurement before giving up.
             Only used when ``once`` is True.
         mqtt_config: Optional MQTT publishing configuration. If enabled,
@@ -638,7 +639,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         action="store_true",
         help=(
             "Record one measurement and exit, instead of running until "
-            "stopped (for cron-driven polling instead of a long-running service)"
+            "stopped (run by hand right before stepping on the scale, "
+            "instead of a long-running service)"
         ),
     )
     parser.add_argument(

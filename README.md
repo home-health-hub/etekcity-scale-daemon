@@ -353,21 +353,15 @@ Validate a config file (all sections) without starting the daemon:
 etekcity-scale-daemon --config /etc/etekcity-scale-daemon/config.ini --check-config
 ```
 
-### Cron-driven polling instead of a long-running service
+### On-demand capture instead of a long-running service
 
-`--once` records a single measurement and exits, instead of running until stopped: an alternative to the systemd service for setups that prefer periodic polling (e.g. cron) over a persistent process. It waits up to `--once-timeout` seconds (default 60) for a reading and exits non-zero if none arrives in time:
+`--once` records a single measurement and exits, instead of running until stopped: for when you'd rather not run the daemon continuously, start it by hand right before (or while) stepping on the scale. It waits up to `--once-timeout` seconds (default 60) for a reading and exits non-zero if none arrives in time:
 
 ```bash
 etekcity-scale-daemon --config /etc/etekcity-scale-daemon/config.ini --once --once-timeout 30
 ```
 
-Example crontab entry, polling every 15 minutes:
-
-```
-*/15 * * * * /usr/bin/etekcity-scale-daemon --config /etc/etekcity-scale-daemon/config.ini --once >> /var/log/etekcity-scale-daemon.log 2>&1
-```
-
-On the very first run, if `[scale] address`/`model` are still empty, `--once` also uses `--once-timeout` as the scale-discovery timeout (instead of a separate 60-second default). Worst case, an undiscovered scale on a cron job can take up to `2 * --once-timeout` before giving up. Once discovered, the address is saved back into the config (as always), so every run after that only waits `--once-timeout` for the measurement itself.
+On the very first run, if `[scale] address`/`model` are still empty, `--once` also uses `--once-timeout` as the scale-discovery timeout (instead of a separate 60-second default). Worst case, an undiscovered scale can take up to `2 * --once-timeout` before giving up. Once discovered, the address is saved back into the config (as always), so every run after that only waits `--once-timeout` for the measurement itself.
 
 ## Database schema
 
