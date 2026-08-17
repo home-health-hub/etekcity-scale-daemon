@@ -19,7 +19,13 @@ jobs:
         run: pip install flake8
 
       - name: Lint
-        run: flake8 --config .flake8 src
+        run: flake8 --config .flake8 src tests
+
+      - name: Install package with test dependencies
+        run: pip install ".[test]"
+
+      - name: Unit tests
+        run: pytest tests/
 
       - name: Smoke test
         run: ./scripts/smoke-test.sh

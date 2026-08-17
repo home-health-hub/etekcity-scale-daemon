@@ -185,7 +185,7 @@ async def _notify_via_ntfy(
 ) -> None:
     """Announce a new reading via ntfy, with one HTTP action button per profile.
 
-    Each action calls back into the local HTTP API's ``/assign-profile``
+    Each action calls back into the local HTTP API's ``/api/v1/assign-profile``
     endpoint when tapped, so the actual tagging happens later (whenever a
     human responds), not here.
 
@@ -202,7 +202,7 @@ async def _notify_via_ntfy(
         profiles_config: Supplies the profile names, ntfy target, and the
             API base URL the action buttons call back into.
     """
-    callback_base = f"{profiles_config.api_base_url}/assign-profile"
+    callback_base = f"{profiles_config.api_base_url}/api/v1/assign-profile"
     headers = {}
     if profiles_config.ntfy_token:
         headers["Authorization"] = f"Bearer {profiles_config.ntfy_token}"

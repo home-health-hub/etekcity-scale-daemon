@@ -117,17 +117,18 @@ weight_swing_threshold_kg = 0
 state_path = /var/lib/etekcity-scale-daemon/alert-state.json
 
 [api]
-# Lightweight local HTTP API (etekcity-scale-api): GET /health, /latest,
-# and /report. Defaults to no. There's no TLS built in -- keep host
-# bound to loopback (the default) unless it sits behind a reverse proxy.
+# Lightweight local HTTP API (etekcity-scale-api): GET /api/v1/health,
+# /api/v1/capabilities, /api/v1/latest, and /api/v1/report. Defaults to
+# no. There's no TLS built in -- keep host bound to loopback (the
+# default) unless it sits behind a reverse proxy.
 enabled = no
 # Bind address. Change to 0.0.0.0 (or a specific interface) only if you
 # understand the exposure -- set token below if you do.
 host = 127.0.0.1
 port = 8080
-# Optional bearer token: if set, all endpoints except /health require an
-# "Authorization: Bearer <token>" header. Leave blank for no auth (fine
-# for loopback-only use).
+# Optional bearer token: if set, all endpoints except /api/v1/health and
+# /api/v1/capabilities require an "Authorization: Bearer <token>" header.
+# Leave blank for no auth (fine for loopback-only use).
 token =
 
 [profiles]
@@ -135,7 +136,7 @@ token =
 # one person. Defaults to no. Two delivery paths, chosen automatically:
 #   - If [api] is enabled: an ntfy notification with one HTTP action
 #     button per name below, each calling back into this API's
-#     /assign-profile endpoint when tapped. Needs ntfy_url set.
+#     /api/v1/assign-profile endpoint when tapped. Needs ntfy_url set.
 #   - If [api] is disabled: a local dunstify prompt instead, since ntfy's
 #     action buttons would have nothing to call back to. Needs dunstify
 #     (part of the dunst notification daemon) and a real desktop/D-Bus
@@ -155,7 +156,7 @@ api_base_url = http://127.0.0.1:8080
 # Seconds to wait for a dunstify response before giving up. Only used
 # when [api] is disabled.
 dunstify_timeout_seconds = 30
-# Reject /assign-profile requests tagging a reading older than this many
+# Reject /api/v1/assign-profile requests tagging a reading older than this many
 # seconds, unless &confirm=1 is also passed. Guards against a delayed
 # ntfy notification -- tapped long after it was sent, once connectivity
 # returns -- silently tagging a now-stale reading. 0 disables the check
