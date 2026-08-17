@@ -96,14 +96,14 @@ Leave `[scale] address` and `model` empty to auto-discover a scale on first run 
 | `api` | `enabled` | Run the local HTTP API: `yes` or `no`. Defaults to `no`. |
 | `api` | `host` | Bind address. Defaults to `127.0.0.1` (loopback only). |
 | `api` | `port` | Bind port. Defaults to `8080`. |
-| `api` | `token` | Optional bearer token required on all endpoints except `/health`. Blank means no auth. |
+| `api` | `token` | Optional bearer token required on all endpoints except `/api/v1/health` and `/api/v1/capabilities`. Blank means no auth. |
 | `profiles` | `enabled` | Ask "who was this?" for a shared scale: `yes` or `no`. Defaults to `no`. |
 | `profiles` | `names` | Comma-separated list of names to choose between. Required if `enabled = yes`. |
 | `profiles` | `ntfy_url` | ntfy topic URL, e.g. `https://ntfy.sh/your-topic`. Required if `enabled = yes` and `[api] enabled = yes`. |
 | `profiles` | `ntfy_token` | Optional ntfy access token. |
 | `profiles` | `api_base_url` | Where this API is reachable, for ntfy's action buttons to call back into. |
 | `profiles` | `dunstify_timeout_seconds` | Seconds to wait for a local dunstify response. Only used when `[api] enabled = no`. Defaults to `30`. |
-| `profiles` | `assign_window_seconds` | Reject `/assign-profile` requests tagging a reading older than this many seconds, unless `&confirm=1` is also passed. `0` disables the check. Defaults to `0`. |
+| `profiles` | `assign_window_seconds` | Reject `/api/v1/assign-profile` requests tagging a reading older than this many seconds, unless `&confirm=1` is also passed. `0` disables the check. Defaults to `0`. |
 | `profile.<name>` | `name` / `email` | Optional, printed below the title in PDF reports when this profile is selected. Leave blank to omit; `name` defaults to the profile's own name (e.g. `Alice`) if left blank. |
 | `profile.<name>` | `height_unit` | Unit that `height` below is written in: `m`, `cm`, or `in`. Defaults to `m`. |
 | `profile.<name>` | `height` / `birthdate` / `sex` / `athlete` | Required for this person's body composition if `report.include_body_metrics = yes`. One section per name in `profiles.names`. Never falls back to another profile's values. |
@@ -202,23 +202,24 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now etekcity-scale-api.service
 ```
 
-Endpoints:
+Endpoints, all under `/api/v1/`:
 
 | Method & path | Description |
 |---|---|
-| `GET /health` | Unauthenticated liveness check: `{"status": "ok", "version": "..."}`. |
-| `GET /latest[?address=...]` | Most recent reading for each scale (or one, if filtered), as JSON. |
-| `GET /report[?format=pdf\|csv&period=...&from=...&to=...&address=...&profile=...]` | Generates a report on demand using the same `[report]` config as `etekcity-scale-report`, returned as a file download. |
+| `GET /api/v1/health` | Unauthenticated liveness check: `{"status": "ok", "version": "..."}`. |
+| `GET /api/v1/capabilities` | Unauthenticated. What this running instance actually supports -- measurement types for the configured scale model, MQTT status, etc. -- so a consumer doesn't have to guess. |
+| `GET /api/v1/latest[?address=...]` | Most recent reading for each scale (or one, if filtered), as JSON. |
+| `GET /api/v1/report[?format=pdf\|csv&period=...&from=...&to=...&address=...&profile=...]` | Generates a report on demand using the same `[report]` config as `etekcity-scale-report`, returned as a file download. |
 
 ```bash
-curl http://127.0.0.1:8080/latest
-curl -o report.pdf "http://127.0.0.1:8080/report?period=30d"
+curl http://127.0.0.1:8080/api/v1/latest
+curl -o report.pdf "http://127.0.0.1:8080/api/v1/report?period=30d"
 ```
 
-**There's no TLS built in.** `host` defaults to `127.0.0.1` (loopback only) for a reason: don't bind it to `0.0.0.0` or a LAN-facing interface without putting a reverse proxy (with TLS and its own auth) in front of it. Setting `api.token` requires an `Authorization: Bearer <token>` header on every endpoint except `/health`, which is worth doing even on loopback if other local users/processes on the same host shouldn't see scale data:
+**There's no TLS built in.** `host` defaults to `127.0.0.1` (loopback only) for a reason: don't bind it to `0.0.0.0` or a LAN-facing interface without putting a reverse proxy (with TLS and its own auth) in front of it. Setting `api.token` requires an `Authorization: Bearer <token>` header on every endpoint except `/api/v1/health` and `/api/v1/capabilities`, which is worth doing even on loopback if other local users/processes on the same host shouldn't see scale data:
 
 ```bash
-curl -H "Authorization: Bearer <token>" http://127.0.0.1:8080/latest
+curl -H "Authorization: Bearer <token>" http://127.0.0.1:8080/api/v1/latest
 ```
 
 ### Profiles
@@ -229,7 +230,7 @@ For a scale shared by more than one person: `[profiles]` asks "who was this?" af
 
 Two delivery paths, chosen automatically based on whether `[api]` is enabled:
 
-- **`[api]` enabled**: an [ntfy](https://ntfy.sh) notification with one HTTP action button per name in `profiles.names`. Tapping a button hits this API's `/assign-profile` endpoint directly, tagging that specific reading. Requires `profiles.ntfy_url` (and `profiles.api_base_url` pointing at wherever the API is actually reachable from your phone/desktop; `127.0.0.1` only works if ntfy and the API run on the same machine). If the ntfy server is briefly unreachable or returns a 5xx error right when a reading happens, the publish is retried twice (after 1s, then 2s) before giving up and logging a warning. A 4xx response (bad token, bad request) is never retried.
+- **`[api]` enabled**: an [ntfy](https://ntfy.sh) notification with one HTTP action button per name in `profiles.names`. Tapping a button hits this API's `/api/v1/assign-profile` endpoint directly, tagging that specific reading. Requires `profiles.ntfy_url` (and `profiles.api_base_url` pointing at wherever the API is actually reachable from your phone/desktop; `127.0.0.1` only works if ntfy and the API run on the same machine). If the ntfy server is briefly unreachable or returns a 5xx error right when a reading happens, the publish is retried twice (after 1s, then 2s) before giving up and logging a warning. A 4xx response (bad token, bad request) is never retried.
 - **`[api]` disabled**: a local [dunstify](https://dunst-project.org) prompt instead, since ntfy's action buttons would have nothing to call back to without the API running. This resolves synchronously and tags the reading directly, no network round-trip. It needs the `dunst` notification daemon and a real desktop/D-Bus session. It will not reach anywhere from a headless system service with no logged-in session, which is how the daemon runs by default.
 
 ```ini
@@ -240,16 +241,16 @@ ntfy_url = https://ntfy.sh/your-topic
 api_base_url = http://127.0.0.1:8080
 ```
 
-`/assign-profile` also accepts manual tagging or correcting a mistake:
+`/api/v1/assign-profile` also accepts manual tagging or correcting a mistake:
 
 ```bash
-curl "http://127.0.0.1:8080/assign-profile?id=42&profile=Alice"
+curl "http://127.0.0.1:8080/api/v1/assign-profile?id=42&profile=Alice"
 ```
 
 If `profiles.assign_window_seconds` is set, this fails with `409` for a reading older than that window: a safety net for delayed ntfy notifications (tapped long after connectivity returns, potentially tagging a now-stale reading someone's forgotten about) rather than a limit on manual corrections. Add `&confirm=1` to tag an old reading on purpose:
 
 ```bash
-curl "http://127.0.0.1:8080/assign-profile?id=42&profile=Alice&confirm=1"
+curl "http://127.0.0.1:8080/api/v1/assign-profile?id=42&profile=Alice&confirm=1"
 ```
 
 #### Per-profile body composition
@@ -269,7 +270,7 @@ athlete = no
 
 ```bash
 etekcity-scale-report --config /etc/etekcity-scale-daemon/config.ini --profile Alice --output alice-report.pdf
-curl -o alice-report.pdf "http://127.0.0.1:8080/report?profile=Alice"
+curl -o alice-report.pdf "http://127.0.0.1:8080/api/v1/report?profile=Alice"
 ```
 
 `--profile`/`?profile=` also filters which readings are included (only ones tagged with that name), not just which biometrics get used, and is required whenever `report.include_body_metrics = yes`, since there's no shared fallback section. This never falls back to another profile's values when a profile's section is missing or incomplete: that would mean silently computing Bob's body fat percentage using Alice's height, which is a correctness bug, not a convenience, so it's a clear error instead.
@@ -493,11 +494,13 @@ Contributions are welcome!
 - **Everything else** (questions, feature requests, ideas, general discussion): [Use Discussions](https://github.com/bonelifer/etekcity-scale-daemon/discussions).
 - Pull requests are welcome for bug fixes or discussed features.
 
-CI (`.github/workflows/ci.yml`) runs `flake8` and `scripts/smoke-test.sh` on every PR. Run them locally before pushing:
+CI (`.github/workflows/ci.yml`) runs `flake8`, the `pytest` suite under `tests/`, and `scripts/smoke-test.sh` on every PR. Run them locally before pushing:
 
 ```bash
 pip install flake8
-flake8 --config .flake8 src
+flake8 --config .flake8 src tests
+pip install ".[test]"
+pytest tests/
 ./scripts/smoke-test.sh
 ```
 
