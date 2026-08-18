@@ -31,7 +31,7 @@ Requires Python 3.11+.
 ### Quick install
 
 ```bash
-git clone https://github.com/bonelifer/etekcity-scale-daemon.git
+git clone https://github.com/home-health-hub/etekcity-scale-daemon.git
 cd etekcity-scale-daemon
 sudo ./install.sh
 ```
@@ -312,7 +312,7 @@ Why ntfy specifically: unlike most notification services, ntfy's `http` action t
 
 BLE access from inside a container needs the host's D-Bus system bus and Bluetooth adapter, which is why `docker-compose.yml` uses `network_mode: host` plus a bind mount of `/var/run/dbus`; bridge networking would isolate the container from both.
 
-A pre-built image publishes to GHCR from CI on every push to `main`, tagged `latest` and by commit SHA, so `docker pull ghcr.io/bonelifer/etekcity-scale-daemon:latest` works instead of building locally, if you'd rather not build it yourself. Substitute that image name for `etekcity-scale-daemon` in the commands below to use it instead of `docker build`.
+A pre-built image publishes to GHCR from CI on every push to `main`, tagged `latest` and by commit SHA, so `docker pull ghcr.io/home-health-hub/etekcity-scale-daemon:latest` works instead of building locally, if you'd rather not build it yourself. Substitute that image name for `etekcity-scale-daemon` in the commands below to use it instead of `docker build`.
 
 ```bash
 mkdir -p config data
@@ -490,8 +490,8 @@ bluetoothctl scan on
 
 Contributions are welcome!
 
-- **Bug reports**: [Open an issue](https://github.com/bonelifer/etekcity-scale-daemon/issues).
-- **Everything else** (questions, feature requests, ideas, general discussion): [Use Discussions](https://github.com/bonelifer/etekcity-scale-daemon/discussions).
+- **Bug reports**: [Open an issue](https://github.com/home-health-hub/etekcity-scale-daemon/issues).
+- **Everything else** (questions, feature requests, ideas, general discussion): [Use Discussions](https://github.com/home-health-hub/etekcity-scale-daemon/discussions).
 - Pull requests are welcome for bug fixes or discussed features.
 
 CI (`.github/workflows/ci.yml`) runs `flake8`, the `pytest` suite under `tests/`, and `scripts/smoke-test.sh` on every PR. Run them locally before pushing:

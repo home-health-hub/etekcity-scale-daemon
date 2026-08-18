@@ -22,7 +22,7 @@ dependencies = [
 test = ["pytest>=7.0"]
 
 [project.urls]
-Homepage = "https://github.com/bonelifer/etekcity-scale-daemon"
+Homepage = "https://github.com/home-health-hub/etekcity-scale-daemon"
 
 [project.scripts]
 etekcity-scale-daemon = "etekcity_scale_daemon.cli:main"
