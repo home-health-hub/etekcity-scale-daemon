@@ -1,5 +1,7 @@
 # etekcity-scale-daemon
 
+![etekcity-scale-daemon: smart scale readings over Bluetooth to a local home server and database](docs/images/etekcity-scale-daemon-banner.png)
+
 A standalone Linux daemon that connects to an Etekcity smart fitness scale over Bluetooth Low Energy (BLE) and logs its measurements to a local SQLite database. No cloud account, no companion app, no Home Assistant required.
 
 It's a thin wrapper around the [`etekcity_esf551_ble`](https://github.com/ronnnnnnnnnnnnn/etekcity_esf551_ble) library, packaged to run unattended as a `systemd` service on something like a Raspberry Pi sitting near the scale.
