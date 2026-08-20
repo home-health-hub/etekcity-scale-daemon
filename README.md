@@ -312,41 +312,6 @@ Unlike body composition, there's no correctness risk in a profile simply not hav
 
 Why ntfy specifically: unlike most notification services, ntfy's `http` action type is a full HTTP request (URL, method, headers, body) fired directly when the button is tapped, so the notification service itself is the callback mechanism, no separate bot or polling process needed. Pushover only supports a single acknowledge callback tied to emergency-priority alerts, Pushbullet's actionable notifications are about mirroring your own devices rather than third-party callbacks, and Gotify has no equivalent at all. [Apprise](https://github.com/caronc/apprise) (used for [alerting](#alerting)) isn't used here either, since its unified API has no concept of actions and targets 100+ services, most of which have nothing like this.
 
-### Docker
-
-**⚠️ Unverified.** Docker wasn't available in the environment this was written in, so the image has only been checked for "does `pip install .` succeed with these files." The container has never actually been built, started, or tested against real BLE hardware. Treat this as a starting point to debug, not a working install path, until someone confirms it end-to-end.
-
-BLE access from inside a container needs the host's D-Bus system bus and Bluetooth adapter, which is why `docker-compose.yml` uses `network_mode: host` plus a bind mount of `/var/run/dbus`; bridge networking would isolate the container from both.
-
-A pre-built image publishes to GHCR from CI on every push to `main`, tagged `latest` and by commit SHA, so `docker pull ghcr.io/home-health-hub/etekcity-scale-daemon:latest` works instead of building locally, if you'd rather not build it yourself. Substitute that image name for `etekcity-scale-daemon` in the commands below to use it instead of `docker build`.
-
-```bash
-mkdir -p config data
-cp config/etekcity-scale-daemon.ini.example config/config.ini
-"$EDITOR" config/config.ini   # set storage.db_path = /var/lib/etekcity-scale-daemon/measurements.db
-docker compose up -d --build
-docker compose logs -f
-```
-
-Run `etekcity-scale-report` or `etekcity-scale-prune` inside the running container:
-
-```bash
-docker compose exec etekcity-scale-daemon etekcity-scale-report --config /etc/etekcity-scale-daemon/config.ini --output /var/lib/etekcity-scale-daemon/report.pdf
-```
-
-Without Compose, the equivalent is:
-
-```bash
-docker build -t etekcity-scale-daemon .
-docker run -d --name etekcity-scale-daemon \
-  --network host \
-  -v /var/run/dbus:/var/run/dbus \
-  -v "$(pwd)/config:/etc/etekcity-scale-daemon" \
-  -v "$(pwd)/data:/var/lib/etekcity-scale-daemon" \
-  --restart unless-stopped \
-  etekcity-scale-daemon
-```
-
 ## Manual usage
 
 ```bash
