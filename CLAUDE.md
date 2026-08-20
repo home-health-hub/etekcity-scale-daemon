@@ -14,12 +14,11 @@
 - This project is the architecture template the rest of this daemon
   family (`etekcity-bp-daemon`, `trividia-truemetrix-daemon`) was
   deliberately modeled on -- config/storage/alerting/MQTT/pruning/
-  Docker/CI patterns, notification throttling shapes, etc. If a bug gets
+  CI patterns, notification throttling shapes, etc. If a bug gets
   fixed or a pattern improved in one of those siblings, it's worth
   checking whether the same fix applies here too, since it was very
   likely copied in the other direction originally.
 
 ## Verification status
 
-See the README for current hardware-verification status and the Docker
-section's CI-verification notes.
+See the README for current hardware-verification status.
