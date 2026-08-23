@@ -126,6 +126,8 @@ Contributions are welcome!
 - **Everything else** (questions, feature requests, ideas, general discussion): [Use Discussions](https://github.com/home-health-hub/etekcity-scale-daemon/discussions).
 - Pull requests are welcome for bug fixes or discussed features.
 
+### Running checks locally
+
 CI (`.github/workflows/ci.yml`) runs `flake8`, the `pytest` suite under `tests/`, and `scripts/smoke-test.sh` on every PR. Run them locally before pushing:
 
 ```bash
