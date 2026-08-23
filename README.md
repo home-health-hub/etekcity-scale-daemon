@@ -108,16 +108,6 @@ See the [Pruning wiki page](https://github.com/home-health-hub/etekcity-scale-da
 
 Set `[mqtt] enabled = yes` (plus `host`) to publish each measurement to an MQTT broker as JSON, alongside the local SQLite recording. See the [MQTT wiki page](https://github.com/home-health-hub/etekcity-scale-daemon/wiki/MQTT) for the full config reference, topic/payload format, and failure behavior.
 
-## Troubleshooting
-
-On Raspberry Pi (and other BlueZ-based Linux systems), a `org.bluez.Error.InProgress` error usually clears up by power-cycling Bluetooth. See the [Troubleshooting wiki page](https://github.com/home-health-hub/etekcity-scale-daemon/wiki/Troubleshooting) for the commands.
-
-## Acknowledgments
-
-- Scale hardware designed and sold by [Etekcity](https://www.etekcity.com) / [VeSync Co., Ltd.](https://www.vesync.com) (see the Disclaimer above).
-- Built on [`etekcity_esf551_ble`](https://github.com/ronnnnnnnnnnnnn/etekcity_esf551_ble) by maintainer [@ronnnnnnnnnnnnn](https://github.com/ronnnnnnnnnnnnn), which does all the BLE protocol and reverse-engineering work.
-- Code review, bug fixes, and documentation assisted by [Claude](https://www.anthropic.com/claude).
-
 ## Contributing
 
 Contributions are welcome!
@@ -137,6 +127,16 @@ pip install ".[test]"
 pytest tests/
 ./scripts/smoke-test.sh
 ```
+
+## Troubleshooting
+
+On Raspberry Pi (and other BlueZ-based Linux systems), a `org.bluez.Error.InProgress` error usually clears up by power-cycling Bluetooth. See the [Troubleshooting wiki page](https://github.com/home-health-hub/etekcity-scale-daemon/wiki/Troubleshooting) for the commands.
+
+## Acknowledgments
+
+- Scale hardware designed and sold by [Etekcity](https://www.etekcity.com) / [VeSync Co., Ltd.](https://www.vesync.com) (see the Disclaimer above).
+- Built on [`etekcity_esf551_ble`](https://github.com/ronnnnnnnnnnnnn/etekcity_esf551_ble) by maintainer [@ronnnnnnnnnnnnn](https://github.com/ronnnnnnnnnnnnn), which does all the BLE protocol and reverse-engineering work.
+- Code review, bug fixes, and documentation assisted by [Claude](https://www.anthropic.com/claude).
 
 ## License
 
